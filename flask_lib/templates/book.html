@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <h1>Title: {{ book.original.title }}</h1>
+            <h1>Author: {{ book.original.author }}</h1>
+            <h1>Pages: {{ book.original.pages }}</h1>
+            <h1>Owner: {{ book.owner.username }}</h1>
+            {% if book.lend == True %}
+            <h1 class="article-content">Lend</h1>
+            {% else %}
+            <h1 class="article-content">{{ book.status }}</h1>
+            {% endif %}
+            {% if lib.owner == current_user %}
+            <div>
+                <div>
+                    {% if book.owner == current_user %}
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('history', book_id=book.id) }}">History</a>
+                    {% endif %}
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_book', book_id=book.id, status='Reading') }}">Reading</a>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_book', book_id=book.id, status='Finished') }}">Finish</a>
+                </div>
+                {% if book.lend and book.guest %}
+                <div>
+                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_book', book_id=book.id, status='Return') }}">Return</a>
+                </div>
+                {% endif %}
+                {% if book.lend == False and book.owner == current_user %}
+                <div>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('lend', book_id=book.id)}}">Lend</a>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">
+                        Delete
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+                {% if not book.owner == current_user %}
+                <div>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('return_book', book_id=book.id) }}">Return</a>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</article>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Book?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{{ url_for('delete_book', book_id=book.id) }}" method="POST">
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -19,16 +19,29 @@
                 {%  endif %}
             </div>
             <div class="form-group">
-                {{ form.content.label(class="form-control-label") }}
-                {%  if form.content.errors %}
-                    {{ form.content(class="form-control form-control-lg is-invalid") }}
+                {{ form.author.label(class="form-control-label") }}
+                {%  if form.author.errors %}
+                    {{ form.author(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
-                        {%  for error in form.content.errors %}
+                        {%  for error in form.author.errors %}
                             <span>{{ error }}</span>
                         {%  endfor %}
                     </div>
                 {% else %}
-                    {{ form.content(class="form-control form-control-lg") }}
+                    {{ form.author(class="form-control form-control-lg") }}
+                {%  endif %}
+            </div>
+            <div class="form-group">
+                {{ form.pages.label(class="form-control-label") }}
+                {%  if form.pages.errors %}
+                    {{ form.pages(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {%  for error in form.pages.errors %}
+                            <span>{{ error }}</span>
+                        {%  endfor %}
+                    </div>
+                {% else %}
+                    {{ form.pages(class="form-control form-control-lg") }}
                 {%  endif %}
             </div>
         </fieldset>

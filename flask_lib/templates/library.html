@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1 class="mb-3">Owner {{ lib.owner.username }} Books: {{ books.total }}</h1>
+{% if lib.owner == current_user %}
+<a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('invite', lib_id=lib.id) }}">invite</a>
+<a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('book_list') }}">Add book</a>
+{% endif %}
+{% for book in books.items %}
+<article class="media content-section">
+    <div class="media-body">
+        <h2><a class="article-title" href="{{ url_for('book', book_id=book.id) }}">{{ book.original.title }}</a></h2>
+        <h2>{{ book.original.author }}</h2>
+        {% if book.lend %}
+        <p class="article-content">Lend</p>
+        {% else %}
+        <p class="article-content">{{ book.status }}</p>
+        {% endif %}
+    </div>
+</article>
+{% endfor %}
+{% for page_num in books.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=2) %}
+    {% if page_num %}
+        {% if books.page == page_num %}
+            <a class="btn btn-info mb-4" href="{{url_for('library', lib_id=lib.id, page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+            <a class="btn btn-outline-info mb-4" href="{{url_for('library', lib_id=lib.id, page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+    {% else %}
+        ...
+    {% endif %}
+{% endfor %}
+{% endblock content %}

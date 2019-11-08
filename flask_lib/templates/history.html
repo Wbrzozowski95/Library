@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="media-body">
+        <h1>{{ book.original.title }}</h1>
+        <h1>{{ book.original.author }}</h1>
+    </div>
+{% for h in his.items %}
+<article class="media content-section">
+    <div class="media-body">
+        <p class="article-content">Lend to: {{ h.username }}</p>
+        <p class="article-content">{{ h.date.strftime('%Y-%m-%d') }}</p>
+        <p class="article-content">{{ h.action }}</p>
+    </div>
+</article>
+{% endfor %}
+{% for page_num in his.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=2) %}
+    {% if page_num %}
+        {% if his.page == page_num %}
+            <a class="btn btn-info mb-4" href="{{url_for('history', book_id=book.id, page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+            <a class="btn btn-outline-info mb-4" href="{{url_for('history', book_id=book.id, page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+    {% else %}
+        ...
+    {% endif %}
+{% endfor %}
+{% endblock content %}
