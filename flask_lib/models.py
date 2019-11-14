@@ -22,6 +22,8 @@ class User(db.Model, UserMixin):
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
+    pages = db.Column(db.Integer, nullable=False, default=0)
+    days = db.Column(db.Integer, nullable=False, default=0)
     Library = db.relationship('Library', backref='owner', lazy=True, uselist=False)
     Libraries = db.relationship('Library', secondary=membership, backref='member', lazy=True)
     Books = db.relationship('BCopy', backref='owner', lazy=True)
@@ -51,6 +53,7 @@ class BCopy(db.Model):
     status = db.Column(db.String(20), nullable=False, default='New')
     lend = db.Column(db.Boolean, nullable=False, default=False)
     guest = db.Column(db.Boolean, nullable=False, default=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     lib_id = db.Column(db.Integer, db.ForeignKey('library.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -68,7 +71,7 @@ class Book(db.Model):
 
 class History(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime, nullable=True)
+    date = db.Column(db.DateTime, nullable=False)
     action = db.Column(db.String(20), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('b_copy.id'), nullable=False)
     username = db.Column(db.String(20), nullable=False)

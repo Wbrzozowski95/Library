@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1 class="mb-3">Owner {{ lib.owner.username }} Books: {{ books.total }}</h1>
+<h1 class="mb-3">Owner {{ lib.owner.username }}</h1>
 {% if lib.owner == current_user %}
 <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('invite', lib_id=lib.id) }}">invite</a>
 <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('book_list') }}">Add book</a>
@@ -30,3 +30,20 @@
     {% endif %}
 {% endfor %}
 {% endblock content %}
+
+{% block side %}
+<div class="col-md-4">
+    <div class="content-section">
+        <h3>Statistic</h3>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-light">Books: {{ books.total }}</li>
+            <li class="list-group-item list-group-item-light">New Books: {{ data['New'] }}</li>
+            <li class="list-group-item list-group-item-light">Reading Books: {{ data['Reading'] }}</li>
+            <li class="list-group-item list-group-item-light">Finished Books: {{ data['Finished'] }}</li>
+            <li class="list-group-item list-group-item-light">Lend Books: {{ data['Lend'] }}</li>
+            <li class="list-group-item list-group-item-light">Pages per day: {{ data['PD'] }}</li>
+            <li class="list-group-item list-group-item-light">Total pages read: {{ lib.owner.pages }}</li>
+        </ul>
+    </div>
+</div>
+{% endblock side %}

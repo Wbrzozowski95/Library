@@ -38,7 +38,8 @@ def register():
         # send_active_email(user)
         login_user(user, remember=False)
         flash('An email has been send to you to active your account.', 'info')
-        return redirect(url_for('home'))
+        # db.session.rollback()
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 
@@ -123,7 +124,7 @@ def add_book(book_id):
     db.session.add(bcopy)
     db.session.commit()
     flash('New Book has been added', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('library', lib_id=current_user.Library.id))
 
 
 @app.route('/book/new', methods=['GET', 'POST'])
@@ -156,15 +157,22 @@ def update_book(book_id, status):
     if status == 'Return':
         book.lend = False
         book.guest = False
-        #book.return_date = datetime.utcnow
         his = History(date=datetime.utcnow(), action='return', book=book, username='guest')
         db.session.commit()
         flash('Your book status has been updated!', 'success')
-    else:
-        if not book.lend:
-            book.status = status
-            db.session.commit()
-            flash('Your book status has been updated!', 'success')
+    if status == 'Reading':
+        book.status = status
+        book.date = datetime.utcnow()
+        db.session.commit()
+        flash('Your book status has been updated!', 'success')
+    if status == 'Finished':
+        if book.status == 'Reading':
+            delta = datetime.utcnow()-book.date
+            current_user.days += delta.days
+        current_user.pages += book.original.pages
+        book.status = status
+        db.session.commit()
+        flash('Your book status has been updated!', 'success')
     return redirect(url_for('book', book_id=book.id))
 
 
@@ -180,7 +188,7 @@ def delete_book(book_id):
         db.session.delete(book)
         db.session.commit()
         flash('Your book has been deleted!', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('library', lib_id=current_user.Library.id))
 
 
 @app.route('/lend/<int:book_id>', methods=['GET', 'POST'])
@@ -194,23 +202,21 @@ def lend(book_id):
         if form.remember.data:
             book.guest = True
             book.lend = True
-            #book.lending_date = datetime.utcnow
             his = History(date=datetime.utcnow(), action='lending', book=book, username='guest')
             db.session.add(his)
             db.session.commit()
-            return redirect(url_for('home'))
+            return redirect(url_for('library', lib_id=current_user.Library.id))
         else:
             user = User.query.filter_by(username=form.username.data).first()
             if user:
                 book.lend = True
-                # book.lending_date = datetime.utcnow
                 lib = Library.query.filter_by(owner_id=user.id).first()
                 Lbook = BCopy(lend_id=book.id, owner=current_user, original=book.original, part=lib)
                 his = History(date=datetime.utcnow(), action='lending', book=book, username=user.username)
                 db.session.add(Lbook)
                 db.session.add(his)
                 db.session.commit()
-                return redirect(url_for('home'))
+                return redirect(url_for('library', lib_id=current_user.Library.id))
             else:
                 flash('There is no such user.', 'danger')
     return render_template('lend.html', title='Lend', form=form)
@@ -243,7 +249,7 @@ def return_book(book_id):
     db.session.delete(book)
     db.session.commit()
     flash('Book has been returned.', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('library', lib_id=current_user.Library.id))
 
 
 @app.route('/library/<int:lib_id>')
@@ -251,11 +257,20 @@ def return_book(book_id):
 def library(lib_id):
     page = request.args.get('page', 1, type=int)
     lib = Library.query.get_or_404(lib_id)
-    if lib.owner != current_user and lib not in current_user.Libraries:
+    user = lib.owner
+    if user != current_user and lib not in current_user.Libraries:
         flash('You cant view this library.', 'danger')
         return redirect(url_for('home'))
     books = BCopy.query.filter_by(part=lib).paginate(page=page, per_page=5)
-    return render_template('library.html', books=books, lib=lib)
+    data = {'Reading': 0, 'Finished': 0, 'Lend': 0, 'New': 0, 'PD': 0}
+    for book in books.items:
+        if book.lend:
+            data['Lend'] += 1
+        else:
+            data[book.status] += 1
+    if user.days > 0:
+        data['PD'] = user.pages/user.days
+    return render_template('library.html', books=books, lib=lib, data=data)
 
 
 @app.route('/library/<int:lib_id>/invite', methods=['GET', 'POST'])
@@ -284,7 +299,7 @@ def reset_request():
         flash('An email has been send to reset your password.', 'info')
         token = user.get_token()
         return redirect(url_for('reset_token', token=token, _external=True))
-        # return redirect(url_for('login'))
+        return redirect(url_for('login'))
     return render_template('reset_request.html', title='Reset Password', form=form)
 
 
