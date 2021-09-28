@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_lib.models import User
 
 
@@ -50,19 +50,6 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError('That email is taken. Please choose a different one.')
 
 
-class BookForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
-    author = StringField('Author', validators=[DataRequired()])
-    pages = IntegerField('Pages', validators=[DataRequired(), NumberRange(min=1)])
-    submit = SubmitField('Add')
-
-
-class LendForm(FlaskForm):
-    username = StringField('Username', validators=[Length(min=0, max=20)])
-    remember = BooleanField('Guest')
-    submit = SubmitField('Lend')
-
-
 class RequestResetForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
@@ -77,14 +64,3 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm_Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Reset Password')
-
-
-class SearchForm(FlaskForm):
-    author = StringField('Author', default='')
-    title = StringField('Title', default='')
-    submit = SubmitField('Search')
-
-
-class InviteForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    submit = SubmitField('Invite')

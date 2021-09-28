@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-    <form action="" method="POST">
+    <form action="" method="GET">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
             <legend class="border-bottom mb-4">{{ legend }}</legend>
@@ -35,23 +35,23 @@
             {{ form.submit(class="btn btn-outline-info") }}
         </div>
     </form>
-<a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_book') }}">new book</a>
+<a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('books.new_book') }}">new book</a>
 {% for book in books.items %}
 <article class="media content-section">
     <div class="media-body">
         <p>Title: {{ book.title }}</p>
         <p>Author: {{ book.author }}</p>
         <p>Pages: {{ book.pages }}</p>
-        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('add_book' , book_id=book.id) }}">Add book</a>
+        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('books.add_book' , book_id=book.id) }}">Add book</a>
     </div>
 </article>
 {% endfor %}
 {% for page_num in books.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=2) %}
     {% if page_num %}
         {% if books.page == page_num %}
-            <a class="btn btn-info mb-4" href="{{url_for('book_list', page=page_num) }}">{{ page_num }}</a>
+            <a class="btn btn-info mb-4" href="{{url_for('books.book_list', page=page_num, author=form.author.data, title=form.title.data) }}">{{ page_num }}</a>
         {% else %}
-            <a class="btn btn-outline-info mb-4" href="{{url_for('book_list', page=page_num) }}">{{ page_num }}</a>
+            <a class="btn btn-outline-info mb-4" href="{{url_for('books.book_list', page=page_num, author=form.author.data, title=form.title.data) }}">{{ page_num }}</a>
         {% endif %}
     {% else %}
         ...
